@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://eskchb1iap76"]
+
+[ext_resource type="Script" uid="uid://4mctcx3521k3" path="res://main_menu.gd" id="1_06t4h"]
+
+[node name="MainMenu" type="CanvasLayer" unique_id=1766696667]
+script = ExtResource("1_06t4h")
+
+[node name="MainVBox" type="VBoxContainer" parent="." unique_id=860950602]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="MainVBox" unique_id=1566316096]
+custom_minimum_size = Vector2(0, 164)
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 42
+text = "Ant Art Mobile"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainVBox" unique_id=970588276]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LeftColumn" type="VBoxContainer" parent="MainVBox/HBoxContainer" unique_id=1223366574]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="GameMode" type="Button" parent="MainVBox/HBoxContainer/LeftColumn" unique_id=596729668]
+custom_minimum_size = Vector2(100, 35)
+custom_maximum_size = Vector2(100, 35)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Game Mode"
+
+[node name="Options" type="Button" parent="MainVBox/HBoxContainer/LeftColumn" unique_id=761404477]
+custom_minimum_size = Vector2(100, 35)
+custom_maximum_size = Vector2(100, 35)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Options"
+
+[node name="RightColumn" type="VBoxContainer" parent="MainVBox/HBoxContainer" unique_id=202460969]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainVBox/HBoxContainer/RightColumn" unique_id=360629876]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/scrollbar_h_separation = 8
+
+[node name="LevelList" type="VBoxContainer" parent="MainVBox/HBoxContainer/RightColumn/ScrollContainer" unique_id=1744649925]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LockedPopup" type="AcceptDialog" parent="." unique_id=1476805850]
+oversampling_override = 1.0
+title = "Info"
+initial_position = 1
+size = Vector2i(120, 100)
+dialog_text = "Level Locked!"
+
+[node name="ComingSoonPopup" type="AcceptDialog" parent="." unique_id=637574320]
+oversampling_override = 1.0
+title = "Info"
+initial_position = 1
+size = Vector2i(122, 100)
+dialog_text = "Coming Soon!"
+
+[connection signal="pressed" from="MainVBox/HBoxContainer/LeftColumn/GameMode" to="." method="_on_game_mode_pressed"]
+[connection signal="pressed" from="MainVBox/HBoxContainer/LeftColumn/Options" to="." method="_on_options_pressed"]

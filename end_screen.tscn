@@ -25,44 +25,81 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_2afhe")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1871520471]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel" unique_id=262132241]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.04859335
-anchor_top = 0.12601626
-anchor_right = 0.94629157
-anchor_bottom = 0.8902439
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -15.5
+offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
-accessibility_region = true
+theme_override_constants/separation = 10
 alignment = 1
-metadata/_edit_use_anchors_ = true
 
-[node name="Label" type="Label" parent="Panel/VBoxContainer" unique_id=2069359009]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "How was that?"
-label_settings = SubResource("LabelSettings_my301")
-
-[node name="EasierGame" type="Button" parent="Panel/VBoxContainer" unique_id=222901136]
+[node name="EasierGame" type="Button" parent="Panel/HBoxContainer" unique_id=222901136]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 text = "Too Hard!"
 
-[node name="SameGame" type="Button" parent="Panel/VBoxContainer" unique_id=2136375279]
+[node name="SameGame" type="Button" parent="Panel/HBoxContainer" unique_id=2136375279]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 text = "Play Again!"
 
-[node name="HarderGame" type="Button" parent="Panel/VBoxContainer" unique_id=327411342]
+[node name="HarderGame" type="Button" parent="Panel/HBoxContainer" unique_id=327411342]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 4
-text = "I prefer 
-a challenge!"
+text = "Too Easy!"
 
-[connection signal="pressed" from="Panel/VBoxContainer/EasierGame" to="." method="_on_easier"]
-[connection signal="pressed" from="Panel/VBoxContainer/SameGame" to="." method="_on_same"]
-[connection signal="pressed" from="Panel/VBoxContainer/HarderGame" to="." method="_on_harder"]
+[node name="Label" type="Label" parent="Panel" unique_id=2069359009]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 105.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+text = "How was that?"
+label_settings = SubResource("LabelSettings_my301")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="OKExit" type="Button" parent="Panel" unique_id=65939468]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -32.5
+offset_top = -58.0
+offset_right = 32.5
+offset_bottom = -21.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "OK"
+
+[node name="MainMenu" type="Button" parent="Panel" unique_id=1137379351]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -49.5
+offset_top = 26.0
+offset_right = 46.5
+offset_bottom = 57.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Main Menu"
+
+[connection signal="pressed" from="Panel/HBoxContainer/EasierGame" to="." method="_on_easier"]
+[connection signal="pressed" from="Panel/HBoxContainer/SameGame" to="." method="_on_same"]
+[connection signal="pressed" from="Panel/HBoxContainer/HarderGame" to="." method="_on_harder"]
+[connection signal="pressed" from="Panel/OKExit" to="." method="_on_ok_exit"]
+[connection signal="pressed" from="Panel/MainMenu" to="." method="_on_main_menu"]

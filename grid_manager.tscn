@@ -11,3 +11,7 @@ script = ExtResource("1_j4by3")
 script = ExtResource("2_fb6tw")
 
 [node name="EndScreen" parent="." unique_id=1134067845 instance=ExtResource("3_4qfyg")]
+
+[node name="PausePopup" type="AcceptDialog" parent="." unique_id=964153260]
+title = "Pause Menu"
+initial_position = 1

@@ -7,25 +7,24 @@ const SLOT_X_POSITIONS = [2, 6, 11, 16, 20]  # grid x coords, y=35
 
 enum CellState { PRESENT, REMOVED }
 var COLORS = [
-	Color(0.2, 0.7, 0.2), # green
-	Color(0.802, 0.745, 0.0, 1.0), # light yellow
-	Color(0.2, 0.4, 0.9), # blue
-	Color(0.2, 0.8, 0.8), # cyan
-	Color(0.829, 0.455, 0.067, 1.0), # orange
-	Color(0.6, 0.2, 0.8), # purple
-	Color(0.9, 0.4, 0.7), # pink
-	Color(0.8, 0.2, 0.2), # red
-	Color(0.9, 0.7, 0.1), # yellow
-	Color(0.1, 0.5, 0.3), # dark green
 	Color(0.1, 0.2, 0.6), # dark blue
-	Color(0.9, 0.7, 0.6), # skin
-	Color(0.5, 0.3, 0.1), # brown
-	Color(0.9, 0.9, 0.9), # white
-	Color(0.6, 0.6, 0.6), # light gray
 	Color(0.3, 0.3, 0.3), # dark gray
+	Color(0.6, 0.6, 0.6), # light gray
+	Color(0.9, 0.9, 0.9), # white
+	Color(0.2, 0.4, 0.9), # blue
+	Color(0.1, 0.5, 0.3), # dark green
+	Color(0.5, 0.3, 0.1), # brown
+	Color(0.6, 0.2, 0.8), # purple
+	Color(0.5, 0.6, 1.0), # light blue
+	Color(0.2, 0.7, 0.2), # green
+	Color(0.9, 0.7, 0.6), # skin
+	Color(0.8, 0.2, 0.2), # red
+	Color(0.2, 0.8, 0.8), # cyan
+	Color(0.9, 0.7, 0.1), # yellow
+	Color(0.8, 0.5, 0.1), # orange
+	Color(0.9, 0.4, 0.7), # pink
 ]
 
-var gameDificultyLvl = 3
 var queue = []
 var slots = [null, null, null, null, null]
 var grid = []
@@ -34,13 +33,25 @@ var color_index = {}  # color -> array of {x, y} positions
 var agent_scene = preload("res://agent.tscn")
 
 func _ready():
+	if not SaveManager.any_unlocked():
+		GameState.current_difficulty = 4
+		SaveManager.reset_max_games()
 	COLORS.shuffle()
 	initialize_grid()
 	color_index.clear()
 	update_available_cells()
 	generate_boxes()
+	SaveManager.reset_session()
 	$GridDisplay.queue_redraw()
 	$EndScreen.restart_requested.connect(_on_restart)
+	$PausePopup.add_button("Exit to Options")
+	$PausePopup.get_ok_button().text = "Close"
+	$PausePopup.custom_action.connect(_on_pause_action)
+
+func _on_pause_action(action: String):
+	if action == "Options":
+		$PausePopup.hide()
+		get_tree().change_scene_to_file("res://options_menu.tscn")
 
 func indent(i: int):
 	var ind = ""
@@ -55,10 +66,9 @@ func get_cell_color(color_id: int) -> Color:
 		return COLORS[color_id]
 	return Color.WHITE
 
-func initialize_grid(dificultyDelta: int = 0):
+func initialize_grid():
 	grid.clear()
-	gameDificultyLvl += dificultyDelta
-	var dificultyLvl = gameDificultyLvl;
+	var dificultyLvl = GameState.current_difficulty-1;
 	if dificultyLvl > COLORS.size()-1: dificultyLvl = COLORS.size()-1
 	if dificultyLvl < 0: dificultyLvl = 0
 	for y in range(GRID_HEIGHT):
@@ -217,7 +227,7 @@ func launch_agent(pixel: Vector2i, box_position: Vector2i, color: int):
 	agent.start()
 
 func generate_boxes():
-	var maxBoxSize = 42 + (gameDificultyLvl*2)
+	var maxBoxSize = 42 + GameState.current_difficulty*2
 	if maxBoxSize < 1: maxBoxSize
 	var color_counts = {}
 	for y in range(1, GRID_WIDTH):
@@ -299,38 +309,42 @@ func notify_idle_boxes():
 		if box.is_idle and color_index.has(box.color_id) and color_index[box.color_id].size() > 0:
 			box.on_pixels_available()
 
-func check_game_win():
-	# Win check
-	var game_win = 1;
+func game_won() -> bool:
 	for cell in grid:
 		if cell.state == CellState.PRESENT:
-			game_win = 0
-			break
-	if (game_win == 1):
-		# loop completed without break = all removed
+			return false
+	return true
+
+func game_lost() -> bool:
+	if game_won():
+		return false
+	if queue.size() > 0 and get_first_free_slot() != -1:
+		return false
+	# If any agents are still out, not lost yet
+	for box in active_boxes:
+		if not box.is_idle:
+			return false
+		if box.agents_total - box.agents_dispatched <= 0:
+			# Box is empty
+			return false
+		if box.agents_dispatched - box.agents_home > 0:
+			return false
+	return true
+
+func check_game_win():
+	if game_won():
 		show_end_screen(true)
 
 func check_game_loose():
-	# If any agents are still out, not lost yet
-	var agents_out = 0
-	for box in active_boxes:
-		agents_out += box.agents_dispatched - box.agents_home
-	if agents_out > 0:
-		return
-	
-	# No agents moving, check if anything can still be done
-	if queue.size() > 0 and get_first_free_slot() != -1:
-		return
-	for box in active_boxes:
-		if color_index.get(box.color_id, []).size() > 0:
-			return
-	
-	show_end_screen(false)
+	if game_lost():
+		show_end_screen(false)
 
 func show_end_screen(win: bool):
-	get_node("EndScreen").show_result(win)
+	get_node("EndScreen").show_result(win, GameState.current_difficulty)
 
 func _on_restart(delta: int):
+	var new_difficulty = clamp(GameState.current_difficulty + delta, 1, 16)
+	GameState.current_difficulty = new_difficulty
 	# Clear all active boxes
 	for box in active_boxes:
 		box.queue_free()
@@ -345,7 +359,7 @@ func _on_restart(delta: int):
 	# Reinitialize
 	grid.clear()
 	color_index.clear()
-	initialize_grid(delta)
+	initialize_grid()
 	update_available_cells()
 	generate_boxes()
 	

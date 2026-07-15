@@ -1,0 +1,110 @@
+[gd_scene format=3 uid="uid://dikp7g5g4d427"]
+
+[ext_resource type="Script" uid="uid://bkoqvipmlvtq6" path="res://options_menu.gd" id="1_lbr8e"]
+
+[node name="OptionsMenu" type="CanvasLayer" unique_id=345069331]
+script = ExtResource("1_lbr8e")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=907924986]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="VBox" unique_id=1743396669]
+custom_minimum_size = Vector2(0.021, 95)
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "Options"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LivesToggle" type="CheckBox" parent="VBox" unique_id=1592896325]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Max Games System (Interupt after playing X games.)"
+
+[node name="MaxGamesRow" type="HBoxContainer" parent="VBox" unique_id=893369309]
+layout_mode = 2
+alignment = 1
+
+[node name="MaxGamesMinus" type="Button" parent="VBox/MaxGamesRow" unique_id=1024142168]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "-"
+
+[node name="MaxGamesValue" type="Label" parent="VBox/MaxGamesRow" unique_id=1651841280]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Max Games: 100"
+horizontal_alignment = 1
+
+[node name="MaxGamesPlus" type="Button" parent="VBox/MaxGamesRow" unique_id=2028849554]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "+"
+
+[node name="HardExitToggle" type="CheckBox" parent="VBox" unique_id=749179866]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Hard Exit Point (Force closing the app to continue playing)"
+
+[node name="SpeedLabel" type="Label" parent="VBox" unique_id=785997956]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Ant Speed"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBox" unique_id=1051915175]
+custom_minimum_size = Vector2(0, 59)
+layout_mode = 2
+alignment = 1
+
+[node name="SpeedSlow" type="Button" parent="VBox/HBoxContainer" unique_id=313114108]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Slow"
+
+[node name="SpeedNormal" type="Button" parent="VBox/HBoxContainer" unique_id=251472059]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Normal"
+
+[node name="SpeedFast" type="Button" parent="VBox/HBoxContainer" unique_id=1349010875]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Fast"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBox" unique_id=38897769]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 400
+
+[node name="Back" type="Button" parent="VBox/VBoxContainer" unique_id=18028413]
+custom_minimum_size = Vector2(100, 35)
+custom_maximum_size = Vector2(100, 35)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="ClearSave" type="Button" parent="VBox/VBoxContainer" unique_id=737878738]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Clear Save Data"
+
+[node name="ConfirmDialog" type="ConfirmationDialog" parent="." unique_id=1079617142]
+
+[connection signal="toggled" from="VBox/LivesToggle" to="." method="_on_lives_toggled"]
+[connection signal="pressed" from="VBox/MaxGamesRow/MaxGamesMinus" to="." method="_on_max_games_minus"]
+[connection signal="pressed" from="VBox/MaxGamesRow/MaxGamesPlus" to="." method="_on_max_games_plus"]
+[connection signal="toggled" from="VBox/HardExitToggle" to="." method="_on_hard_exit_toggled"]
+[connection signal="pressed" from="VBox/HBoxContainer/SpeedSlow" to="." method="_on_speed_slow"]
+[connection signal="pressed" from="VBox/HBoxContainer/SpeedNormal" to="." method="_on_speed_normal"]
+[connection signal="pressed" from="VBox/HBoxContainer/SpeedFast" to="." method="_on_speed_fast"]
+[connection signal="pressed" from="VBox/VBoxContainer/Back" to="." method="_on_back"]
+[connection signal="pressed" from="VBox/VBoxContainer/ClearSave" to="." method="_on_clear_save"]
+[connection signal="confirmed" from="ConfirmDialog" to="." method="_on_confirm_clear"]

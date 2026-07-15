@@ -85,6 +85,8 @@ func _input(event):
 	
 	# Grid click
 	if local.y < grid_manager.GRID_HEIGHT * CELL_SIZE:
+		grid_manager.get_node("PausePopup").popup()
+		return
 		var x = int(local.x / CELL_SIZE)
 		var y = int(local.y / CELL_SIZE)
 		if x >= 0 and x < grid_manager.GRID_WIDTH:

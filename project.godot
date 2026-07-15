@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="Ant Art Mobile"
-run/main_scene="uid://b56yfkqnlntsb"
+run/main_scene="uid://eskchb1iap76"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SaveManager="*uid://dv7xg1fpo4fs1"
+GameState="*uid://dgdf0k045jl6"
 
 [display]
 

@@ -1,7 +1,7 @@
 extends Node2D
 
 const CELL_SIZE = 20
-const MOVE_TIME = 0.1 # seconds per cell
+#const MOVE_TIME = 0.1 # seconds per cell
 
 enum Phase { OUTBOUND, RETURNING }
 
@@ -24,6 +24,13 @@ func start():
 	position = Vector2(path[0].x * CELL_SIZE, path[0].y * CELL_SIZE)
 	move_to_next()
 
+func get_move_time() -> float:
+	match SaveManager.get_agent_speed():
+		0: return 0.2  # slow
+		1: return 0.1  # normal
+		2: return 0.05 # fast
+		_: return 0.2
+
 func move_to_next():
 	current_step += 1
 	if current_step >= path.size():
@@ -39,7 +46,7 @@ func move_to_next():
 		self,
 		"position",
 		Vector2(next_pos.x * CELL_SIZE, next_pos.y * CELL_SIZE),
-		MOVE_TIME
+		get_move_time()
 	)
 	tween.tween_callback(move_to_next)
 

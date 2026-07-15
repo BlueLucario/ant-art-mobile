@@ -2,8 +2,6 @@ extends Node
 
 signal box_cleared  # emitted when all agents home, slot can be freed
 
-const SPAWN_INTERVAL = 0.5
-
 var color_id: int
 var agents_total: int
 var agents_dispatched: int = 0
@@ -26,9 +24,16 @@ func init(c: int, count: int, slot: int, box_pos: Vector2i, gm: Node):
 func start():
 	spawn_timer = Timer.new()
 	add_child(spawn_timer)
-	spawn_timer.wait_time = SPAWN_INTERVAL
+	spawn_timer.wait_time = get_spawn_interval()
 	spawn_timer.timeout.connect(_on_spawn_timer)
 	spawn_timer.start()
+
+func get_spawn_interval() -> float:
+	match SaveManager.get_agent_speed():
+		0: return 0.7  # slow
+		1: return 0.5  # normal
+		2: return 0.1  # fast
+		_: return 0.3
 
 func _on_spawn_timer():
 	if agents_dispatched >= agents_total:
@@ -67,14 +72,15 @@ func dispatch_next_agent():
 func go_idle():
 	is_idle = true
 	spawn_timer.stop()  # pause timer until woken by recheck
+	grid_manager.check_game_loose()
 
 # Called by agent when it arrives home
 func on_agent_returned():
 	agents_home += 1
-	grid_manager.check_game_loose()
 	if agents_home >= agents_total:
 		box_cleared.emit()
 	grid_manager.get_node("GridDisplay").queue_redraw()
+	grid_manager.check_game_loose()
 
 # Called by GridManager recheck when new pixels of our color become available
 func on_pixels_available():
