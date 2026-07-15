@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dtmh5816dpjjx"]
+
+[node name="Node2D" type="Node2D" unique_id=607965693]
+
+[node name="GridManager" type="Node" parent="." unique_id=240751426]
+
+[node name="ImageDisplay" type="Node2D" parent="." unique_id=137817576]
+
+[node name="SlotManager" type="Node" parent="." unique_id=318164542]
+
+[node name="BoxQueue" type="Node" parent="." unique_id=1668118105]
+
+[node name="AgentManager" type="Node" parent="." unique_id=1846699214]

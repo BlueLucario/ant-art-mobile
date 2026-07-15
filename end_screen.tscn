@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://baccmr4q0dsqw"]
+
+[ext_resource type="Script" uid="uid://xfnsmpjyq858" path="res://end_screen.gd" id="1_my301"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2afhe"]
+bg_color = Color(0.4236506, 0.42365065, 0.42365053, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_my301"]
+font_size = 23
+
+[node name="EndScreen" type="CanvasLayer" unique_id=1134067845]
+script = ExtResource("1_my301")
+
+[node name="Panel" type="Panel" parent="." unique_id=1294545911]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -194.0
+offset_top = 7.0
+offset_right = 197.0
+offset_bottom = 253.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2afhe")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1871520471]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.04859335
+anchor_top = 0.12601626
+anchor_right = 0.94629157
+anchor_bottom = 0.8902439
+grow_horizontal = 2
+grow_vertical = 2
+accessibility_region = true
+alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="Panel/VBoxContainer" unique_id=2069359009]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "How was that?"
+label_settings = SubResource("LabelSettings_my301")
+
+[node name="EasierGame" type="Button" parent="Panel/VBoxContainer" unique_id=222901136]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+text = "Too Hard!"
+
+[node name="SameGame" type="Button" parent="Panel/VBoxContainer" unique_id=2136375279]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Play Again!"
+
+[node name="HarderGame" type="Button" parent="Panel/VBoxContainer" unique_id=327411342]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+text = "I prefer 
+a challenge!"
+
+[connection signal="pressed" from="Panel/VBoxContainer/EasierGame" to="." method="_on_easier"]
+[connection signal="pressed" from="Panel/VBoxContainer/SameGame" to="." method="_on_same"]
+[connection signal="pressed" from="Panel/VBoxContainer/HarderGame" to="." method="_on_harder"]

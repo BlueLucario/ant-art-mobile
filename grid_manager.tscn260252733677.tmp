@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b56yfkqnlntsb"]
+
+[ext_resource type="Script" uid="uid://df260nve7f45t" path="res://grid_manager.gd" id="1_j4by3"]
+[ext_resource type="Script" uid="uid://cf0cpkldhndo4" path="res://grid_display.gd" id="2_fb6tw"]
+
+[node name="GridManager" type="Node" unique_id=748624825]
+script = ExtResource("1_j4by3")
+
+[node name="GridDisplay" type="Node2D" parent="." unique_id=565830550]
+script = ExtResource("2_fb6tw")
