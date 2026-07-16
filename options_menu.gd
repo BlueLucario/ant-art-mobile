@@ -53,6 +53,19 @@ func _on_back():
 
 func _on_clear_save() -> void:
 	$ConfirmDialog.popup()
+	# Style the buttons
+	var cancel = $ConfirmDialog.get_cancel_button()
+	var confirm = $ConfirmDialog.get_ok_button()
+	
+	confirm.text = "Delete"
+	cancel.text = "Back"
+	
+	# Color them
+	confirm.add_theme_color_override("font_color", Color.RED)
+	cancel.add_theme_color_override("font_color", Color.GREEN)
+	
+	# Focus the cancel button by default
+	cancel.grab_focus()
 
 func _on_confirm_clear():
 	SaveManager.clear_save_data()

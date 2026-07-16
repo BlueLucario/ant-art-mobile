@@ -97,6 +97,10 @@ size_flags_horizontal = 4
 text = "Clear Save Data"
 
 [node name="ConfirmDialog" type="ConfirmationDialog" parent="." unique_id=1079617142]
+title = "Alert!"
+initial_position = 1
+dialog_text = "You are about to clear your game data.
+Are you sure you want this?"
 
 [connection signal="toggled" from="VBox/LivesToggle" to="." method="_on_lives_toggled"]
 [connection signal="pressed" from="VBox/MaxGamesRow/MaxGamesMinus" to="." method="_on_max_games_minus"]

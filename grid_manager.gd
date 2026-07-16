@@ -43,15 +43,21 @@ func _ready():
 	generate_boxes()
 	SaveManager.reset_session()
 	$GridDisplay.queue_redraw()
-	$EndScreen.restart_requested.connect(_on_restart)
-	$PausePopup.add_button("Exit to Options")
-	$PausePopup.get_ok_button().text = "Close"
-	$PausePopup.custom_action.connect(_on_pause_action)
-
-func _on_pause_action(action: String):
-	if action == "Options":
+	$EndScreen.restart_requested.connect(restart)
+	var options_btn = $PausePopup.add_button("Exit to Options", true)
+	options_btn.pressed.connect(func():
 		$PausePopup.hide()
 		get_tree().change_scene_to_file("res://options_menu.tscn")
+	)
+	$PausePopup.get_ok_button().text = "Close"
+
+func _is_traversable(n: Vector2i, goal: Vector2i) -> bool:
+	if n == goal:
+		return true
+	if n.x < 0 or n.x >= GRID_WIDTH or n.y < 0 or n.y >= GRID_HEIGHT:
+		return false
+	var cell = get_cell(n.x, n.y)
+	return cell.state == CellState.REMOVED
 
 func indent(i: int):
 	var ind = ""
@@ -147,14 +153,6 @@ func remove_pixel(x: int, y: int):
 	notify_idle_boxes()
 	$GridDisplay.queue_redraw()
 	check_game_win()
-
-func _is_traversable(n: Vector2i, goal: Vector2i) -> bool:
-	if n == goal:
-		return true
-	if n.x < 0 or n.x >= GRID_WIDTH or n.y < 0 or n.y >= GRID_HEIGHT:
-		return false
-	var cell = get_cell(n.x, n.y)
-	return cell.state == CellState.REMOVED
 
 func find_path(start: Vector2i, goal: Vector2i) -> Array:
 	# A* from pixel position to box position
@@ -342,7 +340,7 @@ func check_game_loose():
 func show_end_screen(win: bool):
 	get_node("EndScreen").show_result(win, GameState.current_difficulty)
 
-func _on_restart(delta: int):
+func restart(delta: int):
 	var new_difficulty = clamp(GameState.current_difficulty + delta, 1, 16)
 	GameState.current_difficulty = new_difficulty
 	# Clear all active boxes

@@ -85,13 +85,14 @@ func _input(event):
 	
 	# Grid click
 	if local.y < grid_manager.GRID_HEIGHT * CELL_SIZE:
-		grid_manager.get_node("PausePopup").popup()
-		return
-		var x = int(local.x / CELL_SIZE)
-		var y = int(local.y / CELL_SIZE)
-		if x >= 0 and x < grid_manager.GRID_WIDTH:
-			grid_manager.remove_pixel(x, y)
-		return
+		if local.y < (grid_manager.GRID_HEIGHT * CELL_SIZE) / 2:
+			grid_manager.get_node("PausePopup").popup()
+			return
+	#	var x = int(local.x / CELL_SIZE)
+	#	var y = int(local.y / CELL_SIZE)
+	#	if x >= 0 and x < grid_manager.GRID_WIDTH:
+	#		grid_manager.remove_pixel(x, y)
+	#	return
 	
 	# Queue tap — top 5 only
 	var queue_y_start = grid_manager.GRID_HEIGHT * CELL_SIZE + ITEM_H + 10
