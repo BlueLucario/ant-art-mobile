@@ -19,6 +19,4 @@ mono_crash.*.json
 # Android
 *.apk
 *.idsig
-android/build/.gradle
-android/build/libs
-android/.gradle
+android/
