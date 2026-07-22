@@ -1,9 +1,9 @@
 extends Node
 
 const GRID_WIDTH = 24
-const GRID_HEIGHT = 36
+const GRID_HEIGHT = 34
 const CELL_SIZE = 20  # pixels on screen per grid cell
-const SLOT_X_POSITIONS = [2, 6, 11, 16, 20]  # grid x coords, y=35
+const SLOT_X_POSITIONS = [2, 6, 11, 16, 20]  # grid x coords, y=(GRID_HEIGHT-1)
 
 enum CellState { PRESENT, REMOVED }
 var COLORS = [
@@ -25,7 +25,7 @@ var COLORS = [
 	Color(0.9, 0.4, 0.7), # pink
 ]
 
-var queue = []
+var queues = [[], [], [], [], []]  # 5 independent queues
 var slots = [null, null, null, null, null]
 var grid = []
 var active_boxes = []  # all currently slotted boxes
@@ -80,6 +80,7 @@ func initialize_grid():
 	for y in range(GRID_HEIGHT):
 		for x in range(GRID_WIDTH):
 			if x > 0 and x < GRID_WIDTH-1 and y > 0 and y < GRID_WIDTH:#y<width is intentianal
+				#if randi_range(0, 23+dificultyLvl) > 0:
 				grid.append({
 					"color": randi_range(0, dificultyLvl),#0,#randi_range(0, COLORS.size()-1),
 					"state": CellState.PRESENT,
@@ -226,7 +227,7 @@ func launch_agent(pixel: Vector2i, box_position: Vector2i, color: int):
 
 func generate_boxes():
 	var maxBoxSize = 42 + GameState.current_difficulty*2
-	if maxBoxSize < 1: maxBoxSize
+	if maxBoxSize < 1: maxBoxSize = 1
 	var color_counts = {}
 	for y in range(1, GRID_WIDTH):
 		for x in range(1, GRID_WIDTH):
@@ -234,16 +235,23 @@ func generate_boxes():
 			if cell.state == CellState.PRESENT:
 				color_counts[cell.color] = color_counts.get(cell.color, 0) + 1
 	
-	queue.clear()
+	# Build and shuffle main pool first
+	var pool = []
 	for color in color_counts:
 		var remaining = color_counts[color]
 		while remaining > 0:
 			var box_size = min(randi_range(5, maxBoxSize), remaining)
-			queue.append({"color": color, "count": box_size})
+			pool.append({"color": color, "count": box_size})
 			remaining -= box_size
+	pool.shuffle()
 	
-	queue.shuffle()
-	print("Generated ", queue.size(), " boxes")
+	# Deal boxes round-robin into 5 queues
+	for i in range(5):
+		queues[i].clear()
+	for i in range(pool.size()):
+		queues[i % 5].append(pool[i])
+	
+	print("Queues generated: ", queues.map(func(q): return q.size()))
 
 func get_first_free_slot() -> int:
 	for i in range(slots.size()):
@@ -252,32 +260,42 @@ func get_first_free_slot() -> int:
 	return -1
 
 func place_box_from_queue(queue_index: int):
-	if queue_index < 0 or queue_index >= min(5, queue.size()):
+	if queue_index < 0 or queue_index >= 5:
+		return
+	if queues[queue_index].size() == 0:
 		return
 	var slot = get_first_free_slot()
 	if slot == -1:
 		print("No free slots!")
 		return
-	
-	var box_data = queue[queue_index]
-	queue.remove_at(queue_index)
+	place_box_in_slot_from_queue(queue_index, slot)
+
+func place_box_in_slot_from_queue(queue_index: int, slot: int):
+	if slots[slot] != null:
+		return
+	if queues[queue_index].size() == 0:
+		return
+	var box_data = queues[queue_index][0]
+	queues[queue_index].remove_at(0)
+	$GridDisplay.animate_queue_slide(queue_index)
 	
 	var box = preload("res://box.tscn").instantiate()
 	add_child(box)
-	var box_pos = Vector2i(SLOT_X_POSITIONS[slot], 35)
+	var box_pos = Vector2i(SLOT_X_POSITIONS[slot], GRID_HEIGHT-1)
 	box.init(box_data.color, box_data.count, slot, box_pos, self)
 	
-	# Capture for lambda
 	var s = slot
 	slots[s] = box
 	active_boxes.append(box)
-	
 	box.box_cleared.connect(func():
 		slots[s] = null
 		active_boxes.erase(box)
 		$GridDisplay.queue_redraw()
 	)
 	box.start()
+	
+	await get_tree().create_timer(0.5).timeout
+	check_game_loose()
 	$GridDisplay.queue_redraw()
 
 func sort_pixels_for_slot(pixels: Array, slot: int) -> Array:
@@ -316,8 +334,9 @@ func game_won() -> bool:
 func game_lost() -> bool:
 	if game_won():
 		return false
-	if queue.size() > 0 and get_first_free_slot() != -1:
-		return false
+	for q in queues:
+		if q.size() > 0 and get_first_free_slot() != -1:
+			return false
 	# If any agents are still out, not lost yet
 	for box in active_boxes:
 		if not box.is_idle:
