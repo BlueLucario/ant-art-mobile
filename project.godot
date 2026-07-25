@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Config="*uid://buxrs834liify"
 SaveManager="*uid://dv7xg1fpo4fs1"
 GameState="*uid://dgdf0k045jl6"
 

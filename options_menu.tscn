@@ -29,7 +29,15 @@ text = "Max Games System (Interupt after playing X games.)"
 
 [node name="MaxGamesRow" type="HBoxContainer" parent="VBox" unique_id=893369309]
 layout_mode = 2
+size_flags_horizontal = 0
 alignment = 1
+
+[node name="Label" type="Label" parent="VBox/MaxGamesRow" unique_id=2063569735]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Max Games: "
+horizontal_alignment = 1
 
 [node name="MaxGamesMinus" type="Button" parent="VBox/MaxGamesRow" unique_id=1024142168]
 custom_minimum_size = Vector2(60, 0)
@@ -37,9 +45,9 @@ layout_mode = 2
 text = "-"
 
 [node name="MaxGamesValue" type="Label" parent="VBox/MaxGamesRow" unique_id=1651841280]
-custom_minimum_size = Vector2(140, 0)
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
-text = "Max Games: 100"
+text = "100"
 horizontal_alignment = 1
 
 [node name="MaxGamesPlus" type="Button" parent="VBox/MaxGamesRow" unique_id=2028849554]
@@ -51,6 +59,35 @@ text = "+"
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 text = "Hard Exit Point (Force closing the app to continue playing)"
+
+[node name="LockoutRow" type="HBoxContainer" parent="VBox" unique_id=1085760659]
+layout_mode = 2
+size_flags_horizontal = 0
+alignment = 1
+
+[node name="CountdownLabel" type="Label" parent="VBox/LockoutRow" unique_id=694408579]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Lockout Duration:"
+horizontal_alignment = 1
+
+[node name="LockoutMinus" type="Button" parent="VBox/LockoutRow" unique_id=459722682]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "-"
+
+[node name="LockoutValue" type="Label" parent="VBox/LockoutRow" unique_id=1727978331]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "5 min"
+horizontal_alignment = 1
+
+[node name="LockoutPlus" type="Button" parent="VBox/LockoutRow" unique_id=287941268]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "+"
 
 [node name="SpeedLabel" type="Label" parent="VBox" unique_id=785997956]
 custom_minimum_size = Vector2(0, 40)
@@ -106,6 +143,8 @@ Are you sure you want this?"
 [connection signal="pressed" from="VBox/MaxGamesRow/MaxGamesMinus" to="." method="_on_max_games_minus"]
 [connection signal="pressed" from="VBox/MaxGamesRow/MaxGamesPlus" to="." method="_on_max_games_plus"]
 [connection signal="toggled" from="VBox/HardExitToggle" to="." method="_on_hard_exit_toggled"]
+[connection signal="pressed" from="VBox/LockoutRow/LockoutMinus" to="." method="_on_lockout_minus"]
+[connection signal="pressed" from="VBox/LockoutRow/LockoutPlus" to="." method="_on_lockout_plus"]
 [connection signal="pressed" from="VBox/HBoxContainer/SpeedSlow" to="." method="_on_speed_slow"]
 [connection signal="pressed" from="VBox/HBoxContainer/SpeedNormal" to="." method="_on_speed_normal"]
 [connection signal="pressed" from="VBox/HBoxContainer/SpeedFast" to="." method="_on_speed_fast"]

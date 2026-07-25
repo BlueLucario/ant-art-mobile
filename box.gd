@@ -30,10 +30,10 @@ func start():
 
 func get_spawn_interval() -> float:
 	match SaveManager.get_agent_speed():
-		0: return 0.7  # slow
-		1: return 0.5  # normal
-		2: return 0.1  # fast
-		_: return 0.3
+		0: return Config.SPAWN_INTERVAL_SLOW
+		1: return Config.SPAWN_INTERVAL_NORMAL
+		2: return Config.SPAWN_INTERVAL_FAST
+		_: return Config.SPAWN_INTERVAL_NORMAL
 
 func _on_spawn_timer():
 	if agents_dispatched >= agents_total:

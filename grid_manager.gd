@@ -1,10 +1,5 @@
 extends Node
 
-const GRID_WIDTH = 24
-const GRID_HEIGHT = 34
-const CELL_SIZE = 20  # pixels on screen per grid cell
-const SLOT_X_POSITIONS = [2, 6, 11, 16, 20]  # grid x coords, y=(GRID_HEIGHT-1)
-
 enum CellState { PRESENT, REMOVED }
 var COLORS = [
 	Color(0.1, 0.2, 0.6), # dark blue
@@ -28,7 +23,7 @@ var COLORS = [
 var queues = [[], [], [], [], []]  # 5 independent queues
 var slots = [null, null, null, null, null]
 var grid = []
-var active_boxes = []  # all currently slotted boxes
+var active_boxes = [] # all currently slotted boxes
 var color_index = {}  # color -> array of {x, y} positions
 var agent_scene = preload("res://agent.tscn")
 
@@ -54,7 +49,7 @@ func _ready():
 func _is_traversable(n: Vector2i, goal: Vector2i) -> bool:
 	if n == goal:
 		return true
-	if n.x < 0 or n.x >= GRID_WIDTH or n.y < 0 or n.y >= GRID_HEIGHT:
+	if n.x < 0 or n.x >= Config.GRID_WIDTH or n.y < 0 or n.y >= Config.GRID_HEIGHT:
 		return false
 	var cell = get_cell(n.x, n.y)
 	return cell.state == CellState.REMOVED
@@ -77,9 +72,9 @@ func initialize_grid():
 	var dificultyLvl = GameState.current_difficulty-1;
 	if dificultyLvl > COLORS.size()-1: dificultyLvl = COLORS.size()-1
 	if dificultyLvl < 0: dificultyLvl = 0
-	for y in range(GRID_HEIGHT):
-		for x in range(GRID_WIDTH):
-			if x > 0 and x < GRID_WIDTH-1 and y > 0 and y < GRID_WIDTH:#y<width is intentianal
+	for y in range(Config.GRID_HEIGHT):
+		for x in range(Config.GRID_WIDTH):
+			if x > 0 and x < Config.GRID_WIDTH-1 and y > 0 and y < Config.GRID_WIDTH:#y<width is intentianal
 				#if randi_range(0, 23+dificultyLvl) > 0:
 				grid.append({
 					"color": randi_range(0, dificultyLvl),#0,#randi_range(0, COLORS.size()-1),
@@ -96,7 +91,7 @@ func initialize_grid():
 				})
 
 func get_cell(x: int, y: int):
-	return grid[y * GRID_WIDTH + x]
+	return grid[y * Config.GRID_WIDTH + x]
 
 func claim_cell(x: int, y: int):
 	var cell = get_cell(x, y)
@@ -118,7 +113,7 @@ func update_available_cells(x0: int = 0, y0: int = 0):
 		]
 		
 		for n in neighbors:
-			if n.x < 0 or n.x >= GRID_WIDTH or n.y < 0 or n.y >= GRID_HEIGHT:
+			if n.x < 0 or n.x >= Config.GRID_WIDTH or n.y < 0 or n.y >= Config.GRID_HEIGHT:
 				continue
 			var cell = get_cell(n.x, n.y)
 			if cell.exposed == 1:
@@ -187,7 +182,7 @@ func find_path(start: Vector2i, goal: Vector2i) -> Array:
 		]
 		for n in neighbors:
 			# Allow movement through removed cells and one step outside grid (the border lane)
-			if n.x < -1 or n.x > GRID_WIDTH or n.y < -1 or n.y > GRID_HEIGHT+3:
+			if n.x < -1 or n.x > Config.GRID_WIDTH or n.y < -1 or n.y > Config.GRID_HEIGHT+3:
 				continue
 			
 			# Check if traversable
@@ -229,8 +224,8 @@ func generate_boxes():
 	var maxBoxSize = 42 + GameState.current_difficulty*2
 	if maxBoxSize < 1: maxBoxSize = 1
 	var color_counts = {}
-	for y in range(1, GRID_WIDTH):
-		for x in range(1, GRID_WIDTH):
+	for y in range(1, Config.GRID_WIDTH):
+		for x in range(1, Config.GRID_WIDTH):
 			var cell = get_cell(x, y)
 			if cell.state == CellState.PRESENT:
 				color_counts[cell.color] = color_counts.get(cell.color, 0) + 1
@@ -281,7 +276,7 @@ func place_box_in_slot_from_queue(queue_index: int, slot: int):
 	
 	var box = preload("res://box.tscn").instantiate()
 	add_child(box)
-	var box_pos = Vector2i(SLOT_X_POSITIONS[slot], GRID_HEIGHT-1)
+	var box_pos = Vector2i(Config.SLOT_X_POSITIONS[slot], Config.GRID_HEIGHT-1)
 	box.init(box_data.color, box_data.count, slot, box_pos, self)
 	
 	var s = slot
@@ -300,8 +295,8 @@ func place_box_in_slot_from_queue(queue_index: int, slot: int):
 
 func sort_pixels_for_slot(pixels: Array, slot: int) -> Array:
 	var sorted = pixels.duplicate()
-	var max_x = GRID_WIDTH - 1
-	var max_y = GRID_HEIGHT - 1
+	var max_x = Config.GRID_WIDTH - 1
+	var max_y = Config.GRID_HEIGHT - 1
 	
 	match slot:
 		0: sorted.sort_custom(func(a, b): 

@@ -26,10 +26,10 @@ func start():
 
 func get_move_time() -> float:
 	match SaveManager.get_agent_speed():
-		0: return 0.2  # slow
-		1: return 0.1  # normal
-		2: return 0.05 # fast
-		_: return 0.2
+		0: return Config.AGENT_SPEED_SLOW
+		1: return Config.AGENT_SPEED_NORMAL
+		2: return Config.AGENT_SPEED_FAST
+		_: return Config.AGENT_SPEED_NORMAL
 
 func move_to_next():
 	current_step += 1
@@ -71,7 +71,13 @@ func _draw():
 		draw_circle(
 			Vector2(CELL_SIZE / 2, CELL_SIZE / 2),
 			CELL_SIZE * 0.35,
-			grid_manager.COLORS[color_id]
+			grid_manager.COLORS[color_id]#Color.WHITE
+		)
+		draw_circle(
+			Vector2(CELL_SIZE / 2, CELL_SIZE / 2),
+			CELL_SIZE * 0.35,
+			Color.LIGHT_GRAY,
+			false
 		)
 	else:
 		# Square while returning (carrying the pixel)
@@ -80,4 +86,9 @@ func _draw():
 		draw_rect(
 			Rect2(offset, offset, size, size),
 			grid_manager.COLORS[color_id]
+		)
+		draw_rect(
+			Rect2(offset, offset, size, size),
+			Color.LIGHT_GRAY,
+			false
 		)

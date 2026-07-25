@@ -2,6 +2,7 @@ extends CanvasLayer
 
 func _ready():
 	update_max_games_label()
+	update_lockout_label()
 	update_speed_label()
 	$VBox/LivesToggle.button_pressed = SaveManager.get_lives_enabled()
 	$VBox/HardExitToggle.button_pressed = SaveManager.get_hard_exit()
@@ -31,6 +32,31 @@ func _on_max_games_plus():
 
 func _on_hard_exit_toggled(val: bool):
 	SaveManager.set_hard_exit(val)
+
+func update_lockout_label():
+	var mins = SaveManager.get_lockout_minutes()
+	if mins <= 0:
+		$VBox/LockoutRow/LockoutValue.text = "Off"
+	else:
+		$VBox/LockoutRow/LockoutValue.text = str(mins) + " min"
+
+func _on_lockout_minus():
+	var val = SaveManager.get_lockout_minutes()
+	if   val > 60: val -= 15
+	elif val > 30: val -= 10
+	elif val > 10: val -=  5
+	else:          val -=  1
+	SaveManager.set_lockout_minutes(max(val, 0))
+	update_lockout_label()
+
+func _on_lockout_plus():
+	var val = SaveManager.get_lockout_minutes()
+	if   val < 10: val +=  1
+	elif val < 30: val +=  5
+	elif val < 60: val += 10
+	else:          val += 15
+	SaveManager.set_lockout_minutes(val)
+	update_lockout_label()
 
 func update_speed_label():
 	var speed_names = ["Slow", "Normal", "Fast"]

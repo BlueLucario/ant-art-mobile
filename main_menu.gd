@@ -1,6 +1,9 @@
 extends CanvasLayer
 
 func _ready():
+	if SaveManager.is_locked_out():
+		get_tree().change_scene_to_file("res://lockout_screen.tscn")
+		return
 	#SaveManager.unlock(4)
 	if not SaveManager.any_unlocked():
 		GameState.current_difficulty = 4

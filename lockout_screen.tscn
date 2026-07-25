@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://cm6wrhq2t2jln"]
+
+[ext_resource type="Script" uid="uid://t1ov3njair05" path="res://lockout_screen.gd" id="1_dampa"]
+
+[node name="LockoutScreen" type="CanvasLayer" unique_id=1340062483]
+script = ExtResource("1_dampa")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=1353397647]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="VBox" unique_id=59623695]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 32
+text = "
+Ant Art Mobile
+"
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="VBox" unique_id=1309980682]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "
+Game is locked for:"
+horizontal_alignment = 1
+
+[node name="CountdownLabel" type="Label" parent="VBox" unique_id=675348464]
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "hh:mm:ss"
+horizontal_alignment = 1
+
+[node name="Label3" type="Label" parent="VBox" unique_id=6504805]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "
+You can update this in settings.
+(Once unlocked)
+"
+horizontal_alignment = 1
+
+[node name="OKExit" type="Button" parent="VBox" unique_id=1013999481]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Exit"
+
+[connection signal="pressed" from="VBox/OKExit" to="." method="_on_ok_exit"]

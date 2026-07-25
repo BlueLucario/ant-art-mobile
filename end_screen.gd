@@ -66,6 +66,9 @@ func _on_main_menu():
 	get_tree().change_scene_to_file("res://main_menu.tscn")
 
 func _on_ok_exit():
+	SaveManager.reset_session()
+	if SaveManager.get_lockout_minutes() > 0:
+		SaveManager.save_lockout_timestamp()
 	if SaveManager.get_hard_exit():
 		get_tree().quit()
 	else:
