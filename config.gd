@@ -56,6 +56,6 @@ const MAX_COLORS = 16
 
 # Generate Data
 func _ready():
-	var step_size: float = float(GRID_WIDTH) / float(SLOT_COUNT + 1)
+	var step_size: float = float(GRID_WIDTH) / float(SLOT_COUNT)
 	for i in range(1, SLOT_COUNT + 1):
-		SLOT_X_POSITIONS.append(int(round(i * step_size)))
+		SLOT_X_POSITIONS.append(int(floor(i * step_size))-3)

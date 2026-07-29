@@ -395,4 +395,5 @@ func restart(delta: int):
 	generate_boxes()
 	
 	$EndScreen.hide()
+	$GridDisplay.ini_board()
 	$GridDisplay.queue_redraw()

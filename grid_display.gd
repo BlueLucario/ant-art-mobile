@@ -16,7 +16,10 @@ var queue_targets = []  # target offset per queue
 var queue_widths = []
 var queue_x_margin = (Config.SCREEN_WIDTH - (Config.QUEUE_COUNT*(Config.ITEM_W+Config.ITEM_GAP_X)))/2
 
-
+func ini_board():
+	queue_offsets.fill(0.0) 
+	queue_targets.fill(0.0) 
+	queue_widths.fill(1.0) 
 
 func _ready():
 	queue_offsets.resize(Config.QUEUE_COUNT)
@@ -35,7 +38,7 @@ func _process(delta):
 		queue_redraw()
 	
 	# Keep redrawing during slide animations
-	for i in range(5):
+	for i in range(Config.SLOT_COUNT):
 		if abs(queue_offsets[i]) > 0.01:
 			queue_redraw()
 			break
@@ -79,7 +82,7 @@ func _handle_press(event):
 		for q_index in range(Config.SLOT_COUNT):
 			if (grid_manager.queues[q_index].size() == 0): continue
 			var x = get_queue_x(q_index)
-			const off = Config.ITEM_GAP_X/2
+			const off = int(Config.ITEM_GAP_X/2)
 			if local.x >= x-off and local.x <= x + Config.ITEM_W+off:
 				if dragging_queue_index == q_index:
 					# Second tap on same queue — place it
@@ -96,9 +99,10 @@ func _handle_press(event):
 	
 	# Check placed box tap
 	if local.y >= slots_y and local.y <= slots_y + Config.ITEM_H:
-		for i in range(5):
+		for i in range(Config.SLOT_COUNT):
 			var x = get_item_x(i)
-			if local.x >= x and local.x <= x + Config.ITEM_W:
+			const off = int(Config.ITEM_GAP_X/2)
+			if local.x >= x - off and local.x <= x + Config.ITEM_W + off:
 				var box = grid_manager.slots[i]
 				if box != null:
 					highlight_color(box.color_id, "all")
@@ -114,7 +118,7 @@ func _handle_release(event):
 	
 	# Check if dropped on a slot
 	if local.y <= slots_y + Config.ITEM_H:
-		for i in range(5):
+		for i in range(Config.SLOT_COUNT):
 			var x = get_item_x(i)
 			if local.x >= x and local.x <= x + Config.ITEM_W+Config.ITEM_GAP_X:
 				if grid_manager.slots[i] == null:
@@ -233,7 +237,7 @@ func draw_queue():
 	var active = get_active_queue_indices()
 	for q_i in range(Config.SLOT_COUNT):
 		if (grid_manager.queues[q_i].size() == 0 && queue_widths[q_i] > 0): 
-			queue_widths[q_i] = max(queue_widths[q_i]-0.1, 0)
+			queue_widths[q_i] = max(queue_widths[q_i]-0.06, 0)
 	
 	for display_i in range(active.size()):
 		var q_index = active[display_i]
