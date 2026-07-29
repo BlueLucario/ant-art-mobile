@@ -71,12 +71,12 @@ func _draw():
 		draw_circle(
 			Vector2(CELL_SIZE / 2, CELL_SIZE / 2),
 			CELL_SIZE * 0.35,
-			grid_manager.COLORS[color_id]#Color.WHITE
+			grid_manager.COLORS[color_id][0]
 		)
 		draw_circle(
 			Vector2(CELL_SIZE / 2, CELL_SIZE / 2),
 			CELL_SIZE * 0.35,
-			Color.LIGHT_GRAY,
+			grid_manager.COLORS[color_id][1],
 			false
 		)
 	else:
@@ -85,10 +85,10 @@ func _draw():
 		var offset = (CELL_SIZE - size) / 2
 		draw_rect(
 			Rect2(offset, offset, size, size),
-			grid_manager.COLORS[color_id]
+			grid_manager.COLORS[color_id][0]
 		)
 		draw_rect(
 			Rect2(offset, offset, size, size),
-			Color.LIGHT_GRAY,
+			grid_manager.COLORS[color_id][1],
 			false
 		)

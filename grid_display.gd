@@ -10,12 +10,22 @@ var pulse_time = 0.0
 var highlight_mode = ""  # "available" or "all"
 
 # Queue animation state
-const QUEUE_VISIBLE = 2.5  # boxes visible per queue
 const QUEUE_START_Y_OFFSET = Config.ITEM_H + 15  # below slots
-var queue_offsets = [0.0, 0.0, 0.0, 0.0, 0.0]  # current slide offset per queue
-var queue_targets = [0.0, 0.0, 0.0, 0.0, 0.0]   # target offset per queue
+var queue_offsets = []  # current slide offset per queue
+var queue_targets = []  # target offset per queue
+var queue_widths = []
+var queue_x_margin = (Config.SCREEN_WIDTH - (Config.QUEUE_COUNT*(Config.ITEM_W+Config.ITEM_GAP_X)))/2
+
+
 
 func _ready():
+	queue_offsets.resize(Config.QUEUE_COUNT)
+	queue_targets.resize(Config.QUEUE_COUNT)
+	queue_widths.resize(Config.QUEUE_COUNT)
+	queue_offsets.fill(0.0) 
+	queue_targets.fill(0.0) 
+	queue_widths.fill(1.0) 
+	
 	grid_manager = get_parent()
 	font = ThemeDB.fallback_font
 
@@ -65,17 +75,18 @@ func _handle_press(event):
 	var active = get_active_queue_indices()
 	
 	# Check queue tap
-	if local.y >= queue_y_base and local.y <= queue_y_base + Config.ITEM_H:
-		for display_i in range(active.size()):
-			var q_index = active[display_i]
-			var x = get_queue_x(display_i, active.size())
-			if local.x >= x and local.x <= x + Config.ITEM_W:
+	if local.y >= queue_y_base:
+		for q_index in range(Config.SLOT_COUNT):
+			if (grid_manager.queues[q_index].size() == 0): continue
+			var x = get_queue_x(q_index)
+			const off = Config.ITEM_GAP_X/2
+			if local.x >= x-off and local.x <= x + Config.ITEM_W+off:
 				if dragging_queue_index == q_index:
 					# Second tap on same queue — place it
 					grid_manager.place_box_from_queue(q_index)
 					dragging_queue_index = -1
 					clear_highlight()
-				else:
+				elif grid_manager.queues[q_index].size() > 0:
 					# First tap — highlight
 					dragging_queue_index = q_index
 					drag_position = to_local(event.position)
@@ -102,10 +113,10 @@ func _handle_release(event):
 	var slots_y = Config.GRID_HEIGHT * Config.CELL_SIZE  + 5
 	
 	# Check if dropped on a slot
-	if local.y >= slots_y and local.y <= slots_y + Config.ITEM_H:
+	if local.y <= slots_y + Config.ITEM_H:
 		for i in range(5):
 			var x = get_item_x(i)
-			if local.x >= x and local.x <= x + Config.ITEM_W:
+			if local.x >= x and local.x <= x + Config.ITEM_W+Config.ITEM_GAP_X:
 				if grid_manager.slots[i] == null:
 					grid_manager.place_box_in_slot_from_queue(dragging_queue_index, i)
 					dragging_queue_index = -1
@@ -118,11 +129,11 @@ func _handle_release(event):
 
 func animate_queue_slide(queue_index: int):
 	# Start offset one box height down, animate to 0
-	queue_offsets[queue_index] = -(Config.ITEM_H + Config.ITEM_GAP)
+	queue_offsets[queue_index] = 1.0#Config.ITEM_H #-(Config.ITEM_H + Config.ITEM_GAP_Y)
 	var tween = create_tween()
 	tween.tween_method(
 		func(val): queue_offsets[queue_index] = val,
-		-(Config.ITEM_H + Config.ITEM_GAP),
+		1.0, #-(Config.ITEM_H + Config.ITEM_GAP_Y),
 		0.0,
 		0.25
 	)
@@ -134,7 +145,7 @@ func draw_drag_ghost():
 	if dragging_queue_index >= grid_manager.queues.size():
 		return
 	var item = grid_manager.queues[dragging_queue_index][0]
-	var color = grid_manager.COLORS[item.color]
+	var color = grid_manager.COLORS[item.color][0]
 	color.a = 0.7
 	var local = to_local(drag_position)
 	draw_rect(Rect2(local.x - Config.ITEM_W/2, local.y - Config.ITEM_H/2, Config.ITEM_W, Config.ITEM_H), color)
@@ -173,19 +184,24 @@ func get_active_queue_count() -> int:
 
 func get_active_queue_indices() -> Array:
 	var indices = []
-	for i in range(5):
-		if grid_manager.queues[i].size() > 0:
+	for i in range(Config.QUEUE_COUNT):
+		if grid_manager.queues[i].size() > 0 || queue_widths[i] > 0:
 			indices.append(i)
 	return indices
 
 func get_item_x(col: int) -> float:
-	return Config.MARGIN + col * (Config.ITEM_W + Config.ITEM_GAP)
+	return Config.MARGIN + col * (Config.ITEM_W + Config.ITEM_GAP_X)
 
-func get_queue_x(display_index: int, total_queues: int) -> float:
-	# Center the active queues
-	var total_width = total_queues * (Config.ITEM_W + Config.ITEM_GAP) - Config.ITEM_GAP
-	var start_x = (480 - total_width) / 2.0
-	return start_x + display_index * (Config.ITEM_W + Config.ITEM_GAP)
+func get_queue_x(display_index: int = -1) -> float:
+	var total_width = 0
+	var at_i_width = 0
+	for q_index in range(Config.SLOT_COUNT):
+		if (q_index == display_index): 
+			at_i_width = total_width
+		total_width += ((Config.ITEM_W+Config.ITEM_GAP_X) * queue_widths[q_index])
+	
+	var start_x = (Config.SCREEN_WIDTH - total_width) / 2.0
+	return start_x + at_i_width
 
 func draw_slots():
 	var y = Config.GRID_HEIGHT * Config.CELL_SIZE  + 5
@@ -194,70 +210,67 @@ func draw_slots():
 		var rect = Rect2(x, y, Config.ITEM_W, Config.ITEM_H)
 		var slot_box = grid_manager.slots[i]
 		if slot_box == null:
-			draw_rect(rect, Color(0.25, 0.25, 0.25))
+			draw_rect(rect, Color(0.2, 0.2, 0.2))
 			draw_rect(rect, Color(0.5, 0.5, 0.5), false)
 		else:
-			draw_rect(rect, grid_manager.COLORS[slot_box.color_id])
-			draw_rect(rect, Color(0.5, 0.5, 0.5), false)
+			var color_bg = grid_manager.COLORS[slot_box.color_id][0]
+			var color_fg = grid_manager.COLORS[slot_box.color_id][1]
+			draw_rect(rect, color_bg)
+			draw_rect(rect, color_fg, false)
 			var waiting = slot_box.agents_total - slot_box.agents_dispatched
 			var out = slot_box.agents_dispatched - slot_box.agents_home
 			var home = slot_box.agents_home
-			draw_string(font, Vector2(x + 6, y + Config.ITEM_H - 6),
-		  		str(waiting), HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, Color.BLACK)
-			draw_string(font, Vector2(x + (Config.ITEM_W/2)-6, y + Config.ITEM_H - 6),
-		  		str(out), HORIZONTAL_ALIGNMENT_CENTER, -1, 14, Color.BLACK)
-			draw_string(font, Vector2(x + Config.ITEM_W - 20, y + Config.ITEM_H - 6),
-		  		str(home), HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, Color.BLACK)
+			draw_string(font, Vector2(x + 6, y + Config.ITEM_H - 20),
+		  		str(waiting), HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, color_fg)
+			draw_string(font, Vector2(x + (Config.ITEM_W/2)-6, y + Config.ITEM_H - 20),
+		  		str(out), HORIZONTAL_ALIGNMENT_CENTER, -1, 14, color_fg)
+			draw_string(font, Vector2(x + Config.ITEM_W - 20, y + Config.ITEM_H - 20),
+		  		str(home), HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, color_fg)
 
 func draw_queue():
 	var slots_y = Config.GRID_HEIGHT * Config.CELL_SIZE  + 5
 	var queue_y_base = slots_y + QUEUE_START_Y_OFFSET
 	var active = get_active_queue_indices()
+	for q_i in range(Config.SLOT_COUNT):
+		if (grid_manager.queues[q_i].size() == 0 && queue_widths[q_i] > 0): 
+			queue_widths[q_i] = max(queue_widths[q_i]-0.1, 0)
 	
 	for display_i in range(active.size()):
 		var q_index = active[display_i]
 		var q = grid_manager.queues[q_index]
-		var x = get_queue_x(display_i, active.size())
+		var draw_x = get_queue_x(q_index)
 		var offset = queue_offsets[q_index]
 		
-		for box_i in range(min(q.size(), 4)):  # draw up to 4, clip to 2.5
+		for i in range(q.size()):
+			var box_i = q.size() - (i + 1)
 			var item = q[box_i]
-			var y = queue_y_base + box_i * (Config.ITEM_H + Config.ITEM_GAP) - offset
-			
-			# Clip — only draw if within visible area
-			var max_y = queue_y_base + QUEUE_VISIBLE * (Config.ITEM_H + Config.ITEM_GAP)
-			if y > max_y:
-				break
+			var x = draw_x + pow(-1, display_i + i - 1)
+			var y = queue_y_base + ((box_i+offset) * ((Config.ITEM_H * 3)/(2+(box_i+offset))) )
 			
 			var rect = Rect2(x, y, Config.ITEM_W, Config.ITEM_H)
-			var color = grid_manager.COLORS[item.color]
-	
-			# Half visible box effect — fade out beyond 2 boxes
-			var fade_start = queue_y_base + 2 * (Config.ITEM_H + Config.ITEM_GAP)
-			if y > fade_start:
-				var fade = 1.0 - (y - fade_start) / (Config.ITEM_H + Config.ITEM_GAP)
-				color.a = clamp(fade, 0.0, 1.0)
-				# Only show color, no count text for half-visible box
-				draw_rect(rect, color)
-				continue
+			var color_bg = grid_manager.COLORS[item.color][0]
+			var color_fg = grid_manager.COLORS[item.color][1]
 			
-			draw_rect(rect, color)
+			draw_rect(rect, color_bg)
 			
 			# Count label
-			if box_i <= 1:
+			if box_i <= 3:
 				draw_string(
 					font,
-					Vector2(x + 4, y + Config.ITEM_H - 6),
+					Vector2(x + 4, y + Config.ITEM_H - 20),
 					str(item.count),
 					HORIZONTAL_ALIGNMENT_LEFT,
-					-1, 14, Color.BLACK
+					-1, 14, color_fg
 				)
 			
 			# Highlight top box border if color matches highlighted
 			if box_i == 0:# and item.color == grid_manager.get_node("GridDisplay").highlight_color_id:
-				draw_rect(rect, Color.WHITE, false, 1.0)
-			else:
+				var c = 1-offset
+				draw_rect(rect, Color(c, c, c), false, 1.0)
+			elif box_i <= 10:
 				draw_rect(rect, Color.BLACK, false, 1.0)
+			else:
+				draw_rect(rect, Color.BLACK, true, 1.0)
 
 func highlight_color(color_id: int, mode: String):
 	highlighted_cells.clear()

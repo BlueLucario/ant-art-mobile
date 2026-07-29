@@ -2,6 +2,24 @@ extends Node
 
 enum CellState { PRESENT, REMOVED }
 var COLORS = [
+	[Color(0.1, 0.2, 0.6), Color(1, 1, 1)], # dark blue
+	[Color(0.3, 0.3, 0.3), Color(1, 1, 1)], # dark gray
+	[Color(0.6, 0.6, 0.6), Color(0, 0, 0)], # light gray
+	[Color(0.9, 0.9, 0.9), Color(0, 0, 0)], # white
+	[Color(0.2, 0.4, 0.9), Color(0, 0, 0)], # blue
+	[Color(0.1, 0.5, 0.3), Color(0, 0, 0)], # dark green
+	[Color(0.5, 0.3, 0.1), Color(0, 0, 0)], # brown
+	[Color(0.6, 0.2, 0.8), Color(0, 0, 0)], # purple
+	[Color(0.5, 0.6, 1.0), Color(0, 0, 0)], # light blue
+	[Color(0.2, 0.7, 0.2), Color(0, 0, 0)], # green
+	[Color(0.9, 0.7, 0.6), Color(0, 0, 0)], # skin
+	[Color(0.8, 0.2, 0.2), Color(0, 0, 0)], # red
+	[Color(0.2, 0.8, 0.8), Color(0, 0, 0)], # cyan
+	[Color(0.9, 0.7, 0.1), Color(0, 0, 0)], # yellow
+	[Color(0.8, 0.5, 0.1), Color(0, 0, 0)], # orange
+	[Color(0.9, 0.4, 0.7), Color(0, 0, 0)], # pink
+]
+var COLORS_old = [
 	Color(0.1, 0.2, 0.6), # dark blue
 	Color(0.3, 0.3, 0.3), # dark gray
 	Color(0.6, 0.6, 0.6), # light gray
@@ -28,6 +46,7 @@ var color_index = {}  # color -> array of {x, y} positions
 var agent_scene = preload("res://agent.tscn")
 
 func _ready():
+	print(Config.SLOT_X_POSITIONS)
 	if not SaveManager.any_unlocked():
 		GameState.current_difficulty = 4
 		SaveManager.reset_max_games()
@@ -64,7 +83,7 @@ func indent(i: int):
 
 func get_cell_color(color_id: int) -> Color:
 	if color_id >= 0 and color_id < COLORS.size():
-		return COLORS[color_id]
+		return COLORS[color_id][0]
 	return Color.WHITE
 
 func initialize_grid():
@@ -221,7 +240,7 @@ func launch_agent(pixel: Vector2i, box_position: Vector2i, color: int):
 	agent.start()
 
 func generate_boxes():
-	var maxBoxSize = 42 + GameState.current_difficulty*2
+	var maxBoxSize = Config.BOX_MAX_AGENTS # 42 + GameState.current_difficulty*2
 	if maxBoxSize < 1: maxBoxSize = 1
 	var color_counts = {}
 	for y in range(1, Config.GRID_WIDTH):
